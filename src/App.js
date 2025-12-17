@@ -50,6 +50,41 @@ const tempWatchedData = [
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
+// structural component
+export default function App() {
+  const [movies, setMovies] = useState(tempMovieData);
+  const [watched, setWatched] = useState(tempWatchedData);
+
+  return (
+    <>
+      <NavBar>
+        <Search />
+        <NumResults movies={movies} />
+      </NavBar>
+      <Main>
+        <ListBox>
+          <MovieList movies={movies} />
+        </ListBox>
+        <WatchedBox>
+          <WatchedSummary watched={watched} />
+          <WatchedMovieList watched={watched} />
+        </WatchedBox>
+      </Main>
+    </>
+  );
+}
+
+// structural component
+function NavBar({ children }) {
+  return (
+    <nav className="nav-bar">
+      <Logo />
+      {children}
+    </nav>
+  );
+}
+
+// stateful component
 function Search() {
   const [query, setQuery] = useState("");
   return (
@@ -62,6 +97,8 @@ function Search() {
     />
   );
 }
+
+// presentational / stateless component
 function Logo() {
   return (
     <div className="logo">
@@ -77,26 +114,13 @@ function NumResults({ movies }) {
     </p>
   );
 }
-function NavBar({ movies }) {
-  return (
-    <nav className="nav-bar">
-      <Logo />
-      <Search />
-      <NumResults movies={movies} />
-    </nav>
-  );
+
+// structural component
+function Main({ children }) {
+  return <main className="main">{children}</main>;
 }
 
-function Main({ movies, watched }) {
-  return (
-    <main className="main">
-      <ListBox movies={movies} />
-      <WatchedBox watched={watched} />
-    </main>
-  );
-}
-
-function ListBox({ movies }) {
+function ListBox({ children }) {
   const [isOpen1, setIsOpen1] = useState(true);
   return (
     <div className="box hide-scrollbar">
@@ -106,7 +130,7 @@ function ListBox({ movies }) {
       >
         {isOpen1 ? "–" : "+"}
       </button>
-      {isOpen1 && <MovieList movies={movies} />}
+      {isOpen1 && children}
     </div>
   );
 }
@@ -136,7 +160,7 @@ function Movie({ movie }) {
   );
 }
 
-function WatchedBox({ watched }) {
+function WatchedBox({ children }) {
   const [isOpen2, setIsOpen2] = useState(true);
 
   return (
@@ -147,12 +171,7 @@ function WatchedBox({ watched }) {
       >
         {isOpen2 ? "–" : "+"}
       </button>
-      {isOpen2 && (
-        <>
-          <WatchedSummary watched={watched} />
-          <WatchedMovieList watched={watched} />
-        </>
-      )}
+      {isOpen2 && children}
     </div>
   );
 }
@@ -216,16 +235,5 @@ function WatchedMovie({ movie }) {
         </p>
       </div>
     </li>
-  );
-}
-export default function App() {
-  const [movies, setMovies] = useState(tempMovieData);
-  const [watched, setWatched] = useState(tempWatchedData);
-
-  return (
-    <>
-      <NavBar movies={movies} />
-      <Main movies={movies} watched={watched} />
-    </>
   );
 }
