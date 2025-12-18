@@ -57,19 +57,26 @@ export default function App() {
   }
   useEffect(
     function () {
+      const controller = new AbortController();
+
       async function fetchMovies() {
         try {
           setError("");
           setIsLoading(true);
-          const res = await fetch(`${URL}&s=${query}`);
+          const res = await fetch(`${URL}&s=${query}`, {
+            signal: controller.signal,
+          });
           if (!res.ok)
             throw new Error("Something went wrong fetching the movies.");
 
           const data = await res.json();
           if (data.Response === "False") throw new Error(data.Error);
           setMovies(data.Search);
+          setError("");
         } catch (error) {
-          setError("Movie not found.");
+          if (error.name !== "AbortError") {
+            setError(error.message);
+          }
         } finally {
           setIsLoading(false);
         }
@@ -77,11 +84,14 @@ export default function App() {
 
       if (query.length < 3) {
         setMovies([]);
-        setError([]);
+        setError("");
         return;
       }
 
       fetchMovies();
+      return function () {
+        controller.abort();
+      };
     },
     [query]
   );
