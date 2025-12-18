@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-const API_KEY = "973f7dfb";
+import { useState } from "react";
 
 const tempMovieData = [
   {
@@ -53,68 +52,13 @@ const average = (arr) =>
 
 // structural component
 export default function App() {
-  const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const tempQuery = "iron+man";
-  // const query = "8fjlsdajfld";
-  const [query, setQuery] = useState("");
-
-  // useEffect(function () {
-  //   console.log("After initial render");
-  // }, []);
-
-  // useEffect(function () {
-  //   console.log("after every render");
-  // });
-
-  // useEffect(
-  //   function () {
-  //     console.log("D");
-  //   },
-  //   [query] // when the Query state changes
-  // );
-
-  // console.log("During render");
-
-  useEffect(
-    function () {
-      async function fetchMovies() {
-        try {
-          setError("");
-          setIsLoading(true);
-          const res = await fetch(
-            `https://www.omdbapi.com/?&apikey=${API_KEY}&s=${query}`
-          );
-          if (!res.ok)
-            throw new Error("Something went wrong fetching the movies.");
-
-          const data = await res.json();
-          if (data.Response === "False") throw new Error(data.Error);
-          setMovies(data.Search);
-        } catch (error) {
-          setError("Movie not found.");
-        } finally {
-          setIsLoading(false);
-        }
-      }
-
-      if (query.length < 3) {
-        setMovies([]);
-        setError([]);
-        return;
-      }
-
-      fetchMovies();
-    },
-    [query]
-  );
+  const [movies, setMovies] = useState(tempMovieData);
+  const [watched, setWatched] = useState(tempWatchedData);
 
   return (
     <>
       <NavBar>
-        <Search query={query} setQuery={setQuery} />
+        <Search />
         <NumResults movies={movies} />
       </NavBar>
       <Main>
@@ -129,10 +73,7 @@ export default function App() {
           }
         />*/}
         <Box>
-          {/* {isLoading ? <Loader /> : <MovieList movies={movies} />} */}
-          {isLoading && !error && <Loader />}
-          {!isLoading && !error && <MovieList movies={movies} />}
-          {error && <ErrorMessage message={error} />}
+          <MovieList movies={movies} />
         </Box>
         <Box>
           <WatchedSummary watched={watched} />
@@ -143,13 +84,6 @@ export default function App() {
   );
 }
 
-function Loader() {
-  return <p className="loader">Loading...</p>;
-}
-
-function ErrorMessage({ message }) {
-  return <p className="error">💀{message}</p>;
-}
 // structural component
 function NavBar({ children }) {
   return (
@@ -161,7 +95,8 @@ function NavBar({ children }) {
 }
 
 // stateful component
-function Search({ query, setQuery }) {
+function Search() {
+  const [query, setQuery] = useState("");
   return (
     <input
       className="search"
