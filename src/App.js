@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { WatchedMovieList } from "./WatchedMovieList";
 import { WatchedSummary } from "./WatchedSummary";
 import { MovieDetails } from "./MovieDetails";
@@ -55,46 +55,87 @@ export default function App() {
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
+
+  const handleMovieSearch = useCallback(() => {
+    async function fetchMovies() {
+      try {
+        setError("");
+        setIsLoading(true);
+        const res = await fetch(`${URL}&s=${query}`);
+        if (!res.ok)
+          throw new Error("Something went wrong fetching the movies.");
+
+        const data = await res.json();
+        if (data.Response === "False") throw new Error(data.Error);
+        setMovies(data.Search);
+        setError("");
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (query.length < 3) {
+      setMovies([]);
+      setError("");
+      return;
+    }
+
+    fetchMovies();
+  }, [query]);
+
   useEffect(
     function () {
-      const controller = new AbortController();
-
-      async function fetchMovies() {
-        try {
-          setError("");
-          setIsLoading(true);
-          const res = await fetch(`${URL}&s=${query}`, {
-            signal: controller.signal,
-          });
-          if (!res.ok)
-            throw new Error("Something went wrong fetching the movies.");
-
-          const data = await res.json();
-          if (data.Response === "False") throw new Error(data.Error);
-          setMovies(data.Search);
-          setError("");
-        } catch (error) {
-          if (error.name !== "AbortError") {
-            setError(error.message);
-          }
-        } finally {
-          setIsLoading(false);
-        }
-      }
-
-      if (query.length < 3) {
-        setMovies([]);
-        setError("");
-        return;
-      }
-
-      fetchMovies();
-      return function () {
-        controller.abort();
+      const onKeyDown = (e) => {
+        if (e.code === "Enter") handleMovieSearch();
       };
+      document.addEventListener("keydown", onKeyDown);
+      return () => document.removeEventListener("keydown", onKeyDown);
     },
-    [query]
+    [handleMovieSearch]
   );
+
+  // useEffect(
+  //   function () {
+  //     const controller = new AbortController();
+
+  //     async function fetchMovies() {
+  //       try {
+  //         setError("");
+  //         setIsLoading(true);
+  //         const res = await fetch(`${URL}&s=${query}`, {
+  //           signal: controller.signal,
+  //         });
+  //         if (!res.ok)
+  //           throw new Error("Something went wrong fetching the movies.");
+
+  //         const data = await res.json();
+  //         if (data.Response === "False") throw new Error(data.Error);
+  //         setMovies(data.Search);
+  //         setError("");
+  //       } catch (error) {
+  //         if (error.name !== "AbortError") {
+  //           setError(error.message);
+  //         }
+  //       } finally {
+  //         setIsLoading(false);
+  //       }
+  //     }
+
+  //     if (query.length < 3) {
+  //       setMovies([]);
+  //       setError("");
+  //       return;
+  //     }
+
+  //     fetchMovies();
+  //     return function () {
+  //       controller.abort();
+  //     };
+  //   },
+  //   [query]
+  // );
 
   return (
     <>
