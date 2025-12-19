@@ -10,6 +10,7 @@ import { Search } from "./Search";
 import { NavBar } from "./NavBar";
 import { ErrorMessage } from "./ErrorMessage";
 import { Loader } from "./Loader";
+import { useMovies } from "./useMovies";
 const API_KEY = "973f7dfb";
 export const URL = `https://www.omdbapi.com/?&apikey=${API_KEY}`;
 
@@ -18,12 +19,11 @@ export const average = (arr) =>
 
 // structural component
 export default function App() {
-  const [movies, setMovies] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState("");
   // const [watched, setWatched] = useState([]);
+
+  const { movies, isLoading, error } = useMovies(query); // custom hook
 
   // use a callback function as the default value
   // sometimes called lazy evaluation
@@ -47,59 +47,6 @@ export default function App() {
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
-
-  /// Implement as callback so we can prevent it from doing constant searches as you are typing and instead only search when enter is pressed
-  const handleMovieSearch = useCallback(() => {
-    async function fetchMovies() {
-      try {
-        setError("");
-        setIsLoading(true);
-        const res = await fetch(`${URL}&s=${query}`);
-        if (!res.ok)
-          throw new Error("Something went wrong fetching the movies.");
-
-        const data = await res.json();
-        if (data.Response === "False") throw new Error(data.Error);
-        setMovies(data.Search);
-        setError("");
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    if (query.length < 3) {
-      setMovies([]);
-      setError("");
-      return;
-    }
-
-    fetchMovies();
-  }, [query]);
-
-  useEffect(
-    function () {
-      localStorage.setItem("watchedList", JSON.stringify(watched));
-    },
-    [watched]
-  );
-
-  // useEffect(function(){
-  //   const watchedMovies = JSON.parse(ocalStorage.getItem("watchedList"));
-  //   setWatched(watchedMovies);
-  // },[])
-
-  useEffect(
-    function () {
-      const onKeyDown = (e) => {
-        if (e.code === "Enter") handleMovieSearch();
-      };
-      document.addEventListener("keydown", onKeyDown);
-      return () => document.removeEventListener("keydown", onKeyDown);
-    },
-    [handleMovieSearch]
-  );
 
   return (
     <>
