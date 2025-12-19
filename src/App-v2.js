@@ -19,19 +19,11 @@ export const average = (arr) =>
 // structural component
 export default function App() {
   const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
-  const [selectedId, setSelectedId] = useState("");
-  // const [watched, setWatched] = useState([]);
-
-  // use a callback function as the default value
-  // sometimes called lazy evaluation
-  const [watched, setWatched] = useState(function () {
-    const watchedMovies = JSON.parse(localStorage.getItem("watchedList"));
-    return watchedMovies;
-  });
-
+  const [selectedId, setSelectedId] = useState("tt0816692");
   // useEffect(function () {
   //   console.log("After initial render");
   // }, []);
@@ -58,7 +50,6 @@ export default function App() {
 
   function handleAddWatched(movie) {
     setWatched((watched) => [...watched, movie]);
-    // localStorage.setItem("watchedList", JSON.stringify([...watched, movie]));
   }
 
   function handleDeleteWatched(id) {
@@ -94,18 +85,6 @@ export default function App() {
 
     fetchMovies();
   }, [query]);
-
-  useEffect(
-    function () {
-      localStorage.setItem("watchedList", JSON.stringify(watched));
-    },
-    [watched]
-  );
-
-  // useEffect(function(){
-  //   const watchedMovies = JSON.parse(ocalStorage.getItem("watchedList"));
-  //   setWatched(watchedMovies);
-  // },[])
 
   useEffect(
     function () {

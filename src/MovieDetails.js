@@ -28,6 +28,21 @@ export function MovieDetails({
     Genre: genre,
   } = movie;
 
+  // if (imdbRating > 8) [isTop, setIsTop] = useState(true);
+  // example of early return failure
+  // if (imdbRating > 8) return <p>Greatest Ever</p>;
+
+  // const [isTop, setIsTop] = useState(imdbRating > 8);
+  // console.log(isTop);
+
+  // useEffect(
+  //   function () {
+  //     setIsTop(imdbRating > 8);
+  //   },
+  //   [imdbRating]
+  // );
+  // const isTop = imdbRating > 8;
+
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
   const watchedUserRating = watched.find(
     (movie) => movie.imdbID === selectedId
@@ -76,7 +91,7 @@ export function MovieDetails({
       poster,
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(" ").at(0)),
-      userRating: watchedUserRating,
+      userRating: userRating,
     };
     onAddWatched(newWatchedMovie);
     onCloseMovie();
