@@ -10,6 +10,7 @@ import { Search } from "./Search";
 import { NavBar } from "./NavBar";
 import { ErrorMessage } from "./ErrorMessage";
 import { Loader } from "./Loader";
+import { useLocalStorageState } from "./useLocalStorageState";
 const API_KEY = "973f7dfb";
 export const URL = `https://www.omdbapi.com/?&apikey=${API_KEY}`;
 
@@ -23,14 +24,7 @@ export default function App() {
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState("");
-  // const [watched, setWatched] = useState([]);
-
-  // use a callback function as the default value
-  // sometimes called lazy evaluation
-  const [watched, setWatched] = useState(function () {
-    const watchedMovies = JSON.parse(localStorage.getItem("watchedList"));
-    return watchedMovies;
-  });
+  const [watched, setWatched] = useLocalStorageState([], "watchedList");
 
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
@@ -77,14 +71,6 @@ export default function App() {
 
     fetchMovies();
   }, [query]);
-
-  useEffect(
-    function () {
-      localStorage.setItem("watchedList", JSON.stringify(watched));
-    },
-    [watched]
-  );
-
   // useEffect(function(){
   //   const watchedMovies = JSON.parse(ocalStorage.getItem("watchedList"));
   //   setWatched(watchedMovies);
